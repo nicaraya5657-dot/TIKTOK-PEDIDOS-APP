@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Pedidos · Gestión de Pedidos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F5F7;
+    --primary:#0A0A0A;
+    --primary-light:#2B2B2B;
+    --primary-dark:#000000;
+    --accent:#FE2C55;
+    --accent-dark:#D6193F;
+    --cyan:#25F4EE;
+    --success:#3F9142;
+    --danger:#D64545;
+    --text:#1C1C1E;
+    --text-muted:#6E6E73;
+    --card-bg:#FFFFFF;
+    --border:#E5E5EA;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  #root{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:78px;
+  }
+  .header{
+    background:var(--primary);
+    color:#fff;
+    padding:18px 20px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:20;
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+    border-bottom:2px solid var(--cyan);
+  }
+  .header .brand{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:22px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    letter-spacing:0.2px;
+  }
+  .header .brand span.tt{
+    background:linear-gradient(90deg, var(--cyan), var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .header .date{
+    font-size:12px;
+    color:#D6D6DA;
+    font-weight:500;
+    text-align:right;
+  }
+  main{
+    flex:1;
+    max-width:640px;
+    width:100%;
+    margin:0 auto;
+    padding:18px 16px 12px;
+  }
+  h2.section-title{
+    font-family:'Baloo 2',sans-serif;
+    font-size:19px;
+    font-weight:700;
+    color:var(--primary-dark);
+    margin:4px 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:14px;
+  }
+  label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-muted);
+    margin:12px 0 5px;
+  }
+  label:first-child{margin-top:0;}
+  input[type=text], input[type=tel], input[type=number], select{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+    background:#fff;
+    color:var(--text);
+  }
+  input:focus, select:focus{
+    outline:none;
+    border-color:var(--accent);
+  }
+  .row-flex{display:flex; gap:8px;}
+  .row-flex > div{flex:1;}
+  .badge{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:20px;
+    letter-spacing:0.3px;
+  }
+  .badge-new{background:#FFE1E9; color:var(--accent-dark);}
+  .badge-old{background:#DCF8F6; color:#0C8C86;}
+  .client-status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:12px;
+    font-size:13px;
+    color:var(--text-muted);
+  }
+  .product-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .product-row select{flex:2.4;}
+  .product-row input{flex:0.9; text-align:center;}
+  .icon-btn{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-size:18px;
+    cursor:pointer;
+    padding:6px 8px;
+    line-height:1;
+  }
+  .add-row-btn{
+    background:none;
+    border:1.5px dashed var(--border);
+    color:var(--accent-dark);
+    font-weight:600;
+    font-size:13.5px;
+    padding:9px;
+    border-radius:10px;
+    width:100%;
+    cursor:pointer;
+    margin-top:2px;
+  }
+  .add-row-btn:hover{border-color:var(--accent);}
+  .order-total{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1.5px dashed var(--border);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .order-total .amt{font-size:20px; font-weight:700; color:var(--primary-dark);}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border:none;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+    padding:12px 16px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    transition:transform 0.05s ease;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--accent); color:#fff; width:100%; margin-top:16px; font-size:15px; padding:13px;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-outline{background:#fff; border:1.5px solid var(--border); color:var(--text);}
+  .btn-success{background:var(--success); color:#fff;}
+  .btn-whatsapp{background:#25D366; color:#fff;}
+  .btn-sm{font-size:12.5px; padding:9px 10px; flex:1;}
+
+  /* Ticket card for route */
+  .ticket{
+    background:var(--card-bg);
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    margin-bottom:16px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 1px 4px rgba(28,28,30,0.06);
+  }
+  .ticket.delivered{opacity:0.72;}
+  .ticket-top{padding:14px 16px 12px;}
+  .ticket-client{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .ticket-client .name{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    color:var(--primary-dark);
+  }
+  .ticket-meta{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--text-muted);
+    line-height:1.6;
+  }
+  .ticket-meta b{color:var(--text);}
+  .ticket-divider{
+    height:0;
+    border-top:2px dashed var(--border);
+    margin:0 16px;
+    position:relative;
+  }
+  .ticket-divider::before, .ticket-divider::after{
+    content:'';
+    position:absolute;
+    top:-8px;
+    width:16px;
+    height:16px;
+    background:var(--bg);
+    border-radius:50%;
+  }
+  .ticket-divider::before{left:-24px;}
+  .ticket-divider::after{right:-24px;}
+  .ticket-products{
+    padding:12px 16px;
+    font-size:13.5px;
+  }
+  .prod-line{
+    display:flex;
+    justify-content:space-between;
+    padding:2px 0;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+  }
+  .ticket-total{
+    display:flex;
+    justify-content:space-between;
+    font-weight:700;
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid var(--border);
+    color:var(--primary-dark);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .ticket-actions{
+    display:flex;
+    gap:8px;
+    padding:12px 16px 16px;
+  }
+  .stamp{
+    position:absolute;
+    top:10px;
+    right:14px;
+    border:2.5px solid var(--success);
+    color:var(--success);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:11px;
+    padding:3px 8px;
+    border-radius:6px;
+    transform:rotate(9deg);
+    letter-spacing:1px;
+    opacity:0.85;
+  }
+  .empty-state{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--text-muted);
+  }
+  .empty-state .paw{font-size:32px; margin-bottom:8px;}
+
+  /* Bottom nav */
+  .bottom-nav{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    background:#fff;
+    border-top:1px solid var(--border);
+    display:flex;
+    z-index:30;
+    box-shadow:0 -2px 10px rgba(0,0,0,0.05);
+  }
+  .nav-item{
+    flex:1;
+    text-align:center;
+    padding:9px 4px 10px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    color:var(--text-muted);
+    font-family:'Inter',sans-serif;
+  }
+  .nav-item .ic{font-size:20px; display:block;}
+  .nav-item .lb{font-size:10.5px; font-weight:600; margin-top:2px; display:block;}
+  .nav-item.active{color:var(--accent-dark);}
+  .nav-item.active .ic{transform:scale(1.08);}
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed; inset:0;
+    background:rgba(10,10,10,0.5);
+    display:flex; align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+  }
+  .modal{
+    background:#fff;
+    width:100%; max-width:480px;
+    border-radius:18px 18px 0 0;
+    padding:20px 20px 28px;
+  }
+  .modal h3{
+    font-family:'Baloo 2',sans-serif;
+    margin:0 0 4px;
+    color:var(--primary-dark);
+  }
+  .modal p{margin:0 0 16px; color:var(--text-muted); font-size:13.5px;}
+  .pay-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .pay-opt{
+    border:1.5px solid var(--border);
+    background:#fff;
+    border-radius:12px;
+    padding:14px 10px;
+    text-align:center;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13.5px;
+  }
+  .pay-opt:hover{border-color:var(--accent);}
+  .pay-opt .em{font-size:20px; display:block; margin-bottom:4px;}
+  .modal-cancel{
+    width:100%; margin-top:14px;
+    background:none; border:none;
+    color:var(--text-muted);
+    font-weight:600;
+    padding:10px;
+    cursor:pointer;
+  }
+
+  /* Sales table */
+  .sale-row{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    font-size:13px;
+  }
+  .sale-row .top{display:flex; justify-content:space-between; font-weight:700; color:var(--primary-dark); font-family:'Baloo 2',sans-serif; font-size:15px;}
+  .sale-row .line{color:var(--text-muted); margin-top:4px;}
+  .pill{
+    font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:20px;
+    background:#EFEFEF; color:var(--text-muted); display:inline-block;
+  }
+  .summary-bar{
+    display:flex; gap:10px; margin-bottom:16px;
+  }
+  .summary-box{
+    flex:1;
+    background:var(--primary);
+    color:#fff;
+    border-radius:12px;
+    padding:12px 14px;
+  }
+  .summary-box .lbl{font-size:11px; opacity:0.8;}
+  .summary-box .val{font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; margin-top:2px;}
+
+  .catalog-row{
+    display:flex; gap:8px; align-items:center; margin-bottom:8px;
+  }
+  .catalog-row input{flex:1;}
+  .catalog-row input.price{flex:0.6; text-align:right;}
+  .toast{
+    position:fixed;
+    bottom:90px; left:50%;
+    transform:translateX(-50%);
+    background:var(--primary-dark);
+    color:#fff;
+    padding:11px 20px;
+    border-radius:30px;
+    font-size:13.5px;
+    font-weight:600;
+    z-index:60;
+    box-shadow:0 4px 14px rgba(0,0,0,0.2);
+  }
+  ::placeholder{color:#B0B0B5;}
+  @media (max-width:360px){
+    .pay-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+const CURRENCY = new Intl.NumberFormat('es-CL', {style:'currency', currency:'CLP', maximumFractionDigits:0});
+
+let state = {
+  products: [],
+  clients: [],
+  orders: [],
+  loaded: false
+};
+let currentTab = 'nuevo';
+let orderForm = null; // draft order
+let paymentModalOrderId = null;
+let toastMsg = null;
+let toastTimer = null;
+// Se completa automáticamente al desplegar (ver Code.gs / INSTRUCCIONES.md).
+// Si queda vacío, la app pedirá la URL una vez por dispositivo.
+const DEFAULT_API_URL = '';
+let apiUrl = localStorage.getItem('tiktok_pedidos_api_url') || DEFAULT_API_URL;
+let apiError = false;
+
+function uid(prefix){
+  return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function normPhone(p){
+  return (p||'').replace(/[^0-9]/g,'');
+}
+
+function waPhone(p){
+  let d = normPhone(p);
+  if(d.startsWith('56')) return d;
+  if(d.startsWith('9') && d.length===9) return '56'+d;
+  if(d.length===8) return '569'+d;
+  return d;
+}
+
+function todayStr(){
+  return new Date().toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long'});
+}
+
+// Backend por filas: cada producto/cliente/pedido vive en su propia fila
+// de su propia hoja (Products / Clients / Orders), nunca en un solo bloque
+// JSON gigante. Esto evita el truncado de ~50.000 caracteres por celda.
+async function apiGetAll(){
+  const res = await fetch(`${apiUrl}?action=all`);
+  if(!res.ok) throw new Error('API error '+res.status);
+  return await res.json();
+}
+async function apiPost(action, payload){
+  const res = await fetch(apiUrl, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({action}, payload))
+  });
+  if(!res.ok) throw new Error('API error '+res.status);
+  const data = await res.json();
+  if(data.error) throw new Error(data.error);
+  return data;
+}
+
+async function loadState(){
+  if(!apiUrl){ state.loaded='config'; render(); return; }
+  apiError = false;
+  try{
+    const data = await apiGetAll();
+    state.products = data.products || [];
+    state.clients = data.clients || [];
+    state.orders = data.orders || [];
+  }catch(e){
+    apiError = true;
+    state.products = []; state.clients = []; state.orders = [];
+  }
+  state.loaded = true;
+  resetOrderForm();
+  render();
+}
+
+async function saveProducts(){
+  try{ await apiPost('saveProducts', {products: state.products}); }catch(e){ showToast('⚠️ No se pudo guardar (revisa conexión)'); }
+}
+async function addClientRemote(client){
+  try{ await apiPost('addClient', {client}); }catch(e){ showToast('⚠️ No se pudo guardar el cliente'); }
+}
+async function addOrderRemote(order){
+  try{ await apiPost('addOrder', {order}); }catch(e){ showToast('⚠️ No se pudo guardar el pedido'); throw e; }
+}
+async function updateOrderRemote(id, patch){
+  try{ await apiPost('updateOrder', {id, patch}); }catch(e){ showToast('⚠️ No se pudo actualizar el pedido'); throw e; }
+}
+
+function saveApiUrlAndStart(url){
+  apiUrl = url.trim();
+  localStorage.setItem('tiktok_pedidos_api_url', apiUrl);
+  state.loaded = false;
+  render();
+  loadState();
+}
+
+function showToast(msg){
+  toastMsg = msg;
+  render();
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ toastMsg=null; render(); }, 2200);
+}
+
+function resetOrderForm(){
+  orderForm = {
+    clientName:'', phone:'', address:'', horario:'',
+    items:[{productId: state.products[0] ? state.products[0].id : '', qty:1}],
+    forceNew:null
+  };
+}
+
+function findClientByPhone(phone){
+  const d = normPhone(phone);
+  if(!d) return null;
+  return state.clients.find(c => normPhone(c.phone) === d) || null;
+}
+
+function isNewClient(){
+  if(orderForm.forceNew !== null) return orderForm.forceNew;
+  if(!orderForm.phone) return true;
+  return !findClientByPhone(orderForm.phone);
+}
+
+function orderItemsTotal(items){
+  return items.reduce((sum,it)=>{
+    const prod = state.products.find(p=>p.id===it.productId);
+    return sum + (prod ? prod.price * (it.qty||0) : 0);
+  },0);
+}
+
+// ---------- Rendering ----------
+function render(){
+  const root = document.getElementById('root');
+  if(state.loaded==='config'){
+    root.innerHTML = renderConfigScreen();
+    attachConfigHandlers();
+    return;
+  }
+  if(!state.loaded){
+    root.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Inter,sans-serif;color:#6E6E73;">Cargando TikTok Pedidos…</div>`;
+    return;
+  }
+  let body = '';
+  if(apiError) body += `<div style="background:#FCEAEA; border:1px solid #F0B8B8; color:#B03A3A; padding:10px 14px; border-radius:10px; font-size:13px; margin-bottom:14px;">⚠️ No se pudo conectar con tu hoja de Google. Revisa tu conexión a internet o que la URL configurada siga siendo válida.</div>`;
+  if(currentTab==='nuevo') body += renderNuevoPedido();
+  else if(currentTab==='ruta') body += renderRuta();
+  else if(currentTab==='ventas') body += renderVentas();
+  else if(currentTab==='catalogo') body += renderCatalogo();
+
+  root.innerHTML = `
+    <div class="header">
+      <div class="brand">🎵 <span>TikTok</span><span class="tt">Pedidos</span></div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="date">${todayStr()}</div>
+        <button id="settings-btn" style="background:none;border:none;color:#fff;opacity:0.8;font-size:16px;cursor:pointer;">⚙️</button>
+      </div>
+    </div>
+    <main>${body}</main>
+    <div class="bottom-nav">
+      ${navItem('nuevo','📝','Nuevo')}
+      ${navItem('ruta','🚚','Ruta')}
+      ${navItem('ventas','📊','Ventas')}
+      ${navItem('catalogo','📦','Catálogo')}
+    </div>
+    ${paymentModalOrderId ? renderPaymentModal() : ''}
+    ${toastMsg ? `<div class="toast">${toastMsg}</div>` : ''}
+  `;
+  attachHandlers();
+}
+
+function renderConfigScreen(){
+  return `
+    <div style="max-width:440px;margin:0 auto;padding:60px 20px; font-family:'Inter',sans-serif;">
+      <div style="text-align:center; margin-bottom:24px;">
+        <div style="font-size:36px;">🎵</div>
+        <div style="font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22px; color:#0A0A0A; margin-top:6px;">Configura TikTok Pedidos</div>
+        <div style="color:#6E6E73; font-size:13.5px; margin-top:6px;">Pega aquí la URL de tu Apps Script (solo la primera vez en este dispositivo)</div>
+      </div>
+      <input type="text" id="config-url-input" placeholder="https://script.google.com/macros/s/..." style="width:100%; padding:12px; border:1.5px solid #E5E5EA; border-radius:10px; font-size:14px;">
+      <button id="config-save-btn" style="width:100%; margin-top:14px; background:#FE2C55; color:#fff; border:none; border-radius:10px; padding:13px; font-weight:700; font-size:15px; cursor:pointer;">Guardar y continuar</button>
+      <div style="margin-top:18px; font-size:12.5px; color:#6E6E73; line-height:1.6;">Esta URL la obtienes al desplegar el Apps Script como "Aplicación web" (ver instrucciones que te dio Claude). Solo necesitas hacer esto una vez por dispositivo.</div>
+    </div>
+  `;
+}
+
+function attachConfigHandlers(){
+  const btn = document.getElementById('config-save-btn');
+  const input = document.getElementById('config-url-input');
+  if(btn) btn.onclick = ()=>{
+    if(input.value.trim().startsWith('http')){
+      saveApiUrlAndStart(input.value);
+    }else{
+      alert('Pega una URL válida (empieza con https://)');
+    }
+  };
+}
+
+function navItem(id, icon, label){
+  return `<button class="nav-item ${currentTab===id?'active':''}" data-nav="${id}">
+    <span class="ic">${icon}</span><span class="lb">${label}</span>
+  </button>`;
+}
+
+function renderNuevoPedido(){
+  const clientNew = isNewClient();
+  const itemsHtml = orderForm.items.map((it, idx)=>`
+    <div class="product-row">
+      <select data-item-idx="${idx}" data-field="productId">${
+        state.products.length
+          ? state.products.map(p=>`<option value="${p.id}" ${p.id===it.productId?'selected':''}>${p.brand} — ${p.name}</option>`).join('')
+          : `<option value="">Agrega productos en "Catálogo"</option>`
+      }</select>
+      <input type="number" min="1" value="${it.qty}" data-item-idx="${idx}" data-field="qty">
+      ${orderForm.items.length>1 ? `<button class="icon-btn" data-remove-item="${idx}">✕</button>` : '<span style="width:34px;display:inline-block;"></span>'}
+    </div>
+  `).join('');
+  const total = orderItemsTotal(orderForm.items);
+  const clientList = state.clients.map(c=>`<option value="${c.name}">`).join('');
+
+  return `
+    <h2 class="section-title">📝 Nuevo pedido</h2>
+    <div class="card">
+      <label>Nombre del cliente</label>
+      <input type="text" id="f-name" list="client-list" value="${escapeHtml(orderForm.clientName)}" placeholder="Ej: María Pérez">
+      <datalist id="client-list">${clientList}</datalist>
+
+      <div class="row-flex">
+        <div>
+          <label>Teléfono</label>
+          <input type="tel" id="f-phone" value="${escapeHtml(orderForm.phone)}" placeholder="+56 9 1234 5678">
+        </div>
+        <div>
+          <label>Horario de entrega</label>
+          <input type="text" id="f-horario" value="${escapeHtml(orderForm.horario)}" placeholder="Ej: 14:00 - 16:00">
+        </div>
+      </div>
+
+      <label>Dirección</label>
+      <input type="text" id="f-address" value="${escapeHtml(orderForm.address)}" placeholder="Calle, número, comuna">
+
+      <div class="client-status">
+        <span class="badge ${clientNew?'badge-new':'badge-old'}">${clientNew?'Cliente nuevo':'Cliente antiguo'}</span>
+        <button class="icon-btn" style="color:var(--text-muted); font-size:13px;" id="toggle-client-type">cambiar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-top:0;">Productos del pedido</label>
+      ${itemsHtml}
+      <button class="add-row-btn" id="add-product-row">+ Agregar otro producto</button>
+      <div class="order-total">
+        <span>Total pedido</span>
+        <span class="amt">${CURRENCY.format(total)}</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="submit-order">Agregar a la ruta →</button>
+  `;
+}
+
+function renderRuta(){
+  const pending = state.orders.filter(o=>o.status==='pending').sort((a,b)=>a.createdAt-b.createdAt);
+  if(!pending.length){
+    return `<h2 class="section-title">🚚 Ruta del día</h2>
+      <div class="empty-state"><div class="paw">🎵</div>Aún no hay pedidos en ruta.<br>Agrega uno desde "Nuevo".</div>`;
+  }
+  return `<h2 class="section-title">🚚 Ruta del día <span style="font-size:13px; color:var(--text-muted); font-weight:500;">(${pending.length} pendiente${pending.length>1?'s':''})</span></h2>
+    ${pending.map(renderTicket).join('')}`;
+}
+
+function renderTicket(o){
+  const prod = o.items.map(it=>{
+    const p = state.products.find(pp=>pp.id===it.productId);
+    return `<div class="prod-line"><span>${it.qty}× ${p?p.name:'(producto eliminado)'}</span><span>${CURRENCY.format((p?p.price:0)*it.qty)}</span></div>`;
+  }).join('');
+  const total = orderItemsTotal(o.items);
+  const waRuta = `https://wa.me/${waPhone(o.phone)}?text=${encodeURIComponent(`Hola ${o.clientName} 👋, tu pedido de *TikTok Pedidos* está programado para hoy entre las ${o.horario||'la tarde'} hrs. Cualquier consulta, escríbenos por aquí. ¡Gracias por preferirnos! 🎵`)}`;
+  const waCamino = `https://wa.me/${waPhone(o.phone)}?text=${encodeURIComponent(`Hola ${o.clientName} 👋, ¡ya vamos en camino a tu domicilio con tu pedido de *TikTok Pedidos*! 🚚🎵 Llegamos en breve.`)}`;
+  return `
+    <div class="ticket">
+      <div class="ticket-top">
+        <div class="ticket-client">
+          <div class="name">${escapeHtml(o.clientName)}</div>
+          <span class="badge ${o.clientType==='nuevo'?'badge-new':'badge-old'}">${o.clientType==='nuevo'?'Nuevo':'Antiguo'}</span>
+        </div>
+        <div class="ticket-meta">
+          📍 <b>${escapeHtml(o.address)}</b><br>
+          📞 ${escapeHtml(o.phone)} &nbsp;·&nbsp; ⏰ ${escapeHtml(o.horario||'sin horario')}
+        </div>
+      </div>
+      <div class="ticket-divider"></div>
+      <div class="ticket-products">
+        ${prod}
+        <div class="ticket-total"><span>Total</span><span>${CURRENCY.format(total)}</span></div>
+      </div>
+      <div class="ticket-actions">
+        <a class="btn btn-whatsapp btn-sm" href="${waRuta}" target="_blank" rel="noopener">📍 Avisar ruta</a>
+        <a class="btn btn-whatsapp btn-sm" href="${waCamino}" target="_blank" rel="noopener">🚗 Voy en camino</a>
+      </div>
+      <div class="ticket-actions" style="padding-top:0;">
+        <button class="btn btn-success btn-sm" data-deliver="${o.id}" style="flex:1;">✅ Marcar entregado</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPaymentModal(){
+  const o = state.orders.find(x=>x.id===paymentModalOrderId);
+  if(!o) return '';
+  const opts = [
+    {k:'efectivo', em:'💵', lb:'Efectivo'},
+    {k:'tarjeta', em:'💳', lb:'Tarjeta'},
+    {k:'transferencia', em:'🏦', lb:'Transferencia'},
+    {k:'credito', em:'📒', lb:'Crédito'},
+    {k:'pendiente', em:'⏳', lb:'Pendiente'},
+  ];
+  return `
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal">
+        <h3>¿Cómo pagó ${escapeHtml(o.clientName)}?</h3>
+        <p>Selecciona el medio de pago para cerrar este pedido.</p>
+        <div class="pay-grid">
+          ${opts.map(op=>`<div class="pay-opt" data-pay="${op.k}"><span class="em">${op.em}</span>${op.lb}</div>`).join('')}
+        </div>
+        <button class="modal-cancel" id="cancel-payment">Cancelar</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderVentas(){
+  const delivered = state.orders.filter(o=>o.status==='delivered').sort((a,b)=>b.deliveredAt-a.deliveredAt);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayOrders = delivered.filter(o=>o.deliveredAt >= today.getTime());
+  const todayTotal = todayOrders.reduce((s,o)=>s+orderItemsTotal(o.items),0);
+  const allTotal = delivered.reduce((s,o)=>s+orderItemsTotal(o.items),0);
+
+  const payLabel = {efectivo:'Efectivo',tarjeta:'Tarjeta',transferencia:'Transferencia',credito:'Crédito',pendiente:'Pendiente'};
+
+  return `
+    <h2 class="section-title">📊 Ventas</h2>
+    <div class="summary-bar">
+      <div class="summary-box">
+        <div class="lbl">Hoy · ${todayOrders.length} entregas</div>
+        <div class="val">${CURRENCY.format(todayTotal)}</div>
+      </div>
+      <div class="summary-box" style="background:var(--accent-dark);">
+        <div class="lbl">Total histórico</div>
+        <div class="val">${CURRENCY.format(allTotal)}</div>
+      </div>
+    </div>
+    ${delivered.length ? `<button class="btn btn-outline" style="width:100%; margin-bottom:14px;" id="export-csv">⬇ Exportar CSV para Google Sheets / Excel</button>` : ''}
+    ${!delivered.length ? `<div class="empty-state"><div class="paw">📦</div>Todavía no hay ventas registradas.</div>` : delivered.map(o=>{
+      const total = orderItemsTotal(o.items);
+      const items = o.items.map(it=>{
+        const p = state.products.find(pp=>pp.id===it.productId);
+        return `${it.qty}× ${p?p.name:'—'}`;
+      }).join(', ');
+      const d = new Date(o.deliveredAt);
+      return `<div class="sale-row">
+        <div class="top"><span>${escapeHtml(o.clientName)}</span><span>${CURRENCY.format(total)}</span></div>
+        <div class="line">${items}</div>
+        <div class="line">📍 ${escapeHtml(o.address)} · ${d.toLocaleDateString('es-CL')} ${d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="line" style="margin-top:6px; display:flex; gap:6px;">
+          <span class="pill">${payLabel[o.paymentMethod]||o.paymentMethod}</span>
+          <span class="pill">${o.clientType==='nuevo'?'Nuevo':'Antiguo'}</span>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function renderCatalogo(){
+  return `
+    <h2 class="section-title">📦 Catálogo de productos</h2>
+    <div class="card">
+      ${state.products.map((p,idx)=>`
+        <div class="catalog-row">
+          <input type="text" data-cat-idx="${idx}" data-cat-field="brand" value="${escapeHtml(p.brand)}" placeholder="Marca / Tienda">
+          <input type="text" data-cat-idx="${idx}" data-cat-field="name" value="${escapeHtml(p.name)}" placeholder="Producto">
+          <input type="number" class="price" data-cat-idx="${idx}" data-cat-field="price" value="${p.price}" placeholder="Precio">
+          <button class="icon-btn" data-cat-remove="${idx}">✕</button>
+        </div>
+      `).join('')}
+      ${!state.products.length ? `<div style="color:var(--text-muted); font-size:13px; margin-bottom:10px;">Aún no hay productos cargados. Agrega el primero.</div>` : ''}
+      <button class="add-row-btn" id="add-product">+ Agregar producto</button>
+      <button class="btn btn-primary" id="save-catalog">Guardar catálogo</button>
+    </div>
+  `;
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- Event handling ----------
+function attachHandlers(){
+  const settingsBtn = document.getElementById('settings-btn');
+  if(settingsBtn) settingsBtn.onclick = ()=>{
+    if(confirm('¿Cambiar la URL de conexión con tu hoja de Google?')){
+      localStorage.removeItem('tiktok_pedidos_api_url');
+      apiUrl = '';
+      state.loaded = 'config';
+      render();
+    }
+  };
+  document.querySelectorAll('[data-nav]').forEach(btn=>{
+    btn.onclick = ()=>{ currentTab = btn.dataset.nav; render(); };
+  });
+
+  if(currentTab==='nuevo'){
+    const nameEl = document.getElementById('f-name');
+    if(nameEl){
+      nameEl.oninput = e=>{ orderForm.clientName = e.target.value; orderForm.forceNew=null; };
+      nameEl.onblur = ()=>{ render(); };
+    }
+    const phoneEl = document.getElementById('f-phone');
+    if(phoneEl){
+      phoneEl.oninput = e=>{ orderForm.phone = e.target.value; orderForm.forceNew=null; };
+      phoneEl.onblur = ()=>{ render(); };
+    }
+    const addrEl = document.getElementById('f-address');
+    if(addrEl) addrEl.oninput = e=>{ orderForm.address = e.target.value; };
+    const horEl = document.getElementById('f-horario');
+    if(horEl) horEl.oninput = e=>{ orderForm.horario = e.target.value; };
+
+    const toggleBtn = document.getElementById('toggle-client-type');
+    if(toggleBtn) toggleBtn.onclick = ()=>{ orderForm.forceNew = !isNewClient(); render(); };
+
+    document.querySelectorAll('[data-item-idx]').forEach(el=>{
+      el.onchange = e=>{
+        const idx = +el.dataset.itemIdx;
+        const field = el.dataset.field;
+        if(field==='qty') orderForm.items[idx].qty = Math.max(1, parseInt(el.value)||1);
+        else orderForm.items[idx].productId = el.value;
+        render();
+      };
+    });
+    document.querySelectorAll('[data-remove-item]').forEach(el=>{
+      el.onclick = ()=>{
+        orderForm.items.splice(+el.dataset.removeItem, 1);
+        render();
+      };
+    });
+    const addRow = document.getElementById('add-product-row');
+    if(addRow) addRow.onclick = ()=>{
+      orderForm.items.push({productId: state.products[0]?state.products[0].id:'', qty:1});
+      render();
+    };
+    const submitBtn = document.getElementById('submit-order');
+    if(submitBtn) submitBtn.onclick = handleSubmitOrder;
+  }
+
+  if(currentTab==='ruta'){
+    document.querySelectorAll('[data-deliver]').forEach(el=>{
+      el.onclick = ()=>{ paymentModalOrderId = el.dataset.deliver; render(); };
+    });
+  }
+
+  if(paymentModalOrderId){
+    document.querySelectorAll('[data-pay]').forEach(el=>{
+      el.onclick = ()=> confirmDelivery(el.dataset.pay);
+    });
+    const cancel = document.getElementById('cancel-payment');
+    if(cancel) cancel.onclick = ()=>{ paymentModalOrderId=null; render(); };
+    const backdrop = document.getElementById('modal-backdrop');
+    if(backdrop) backdrop.onclick = (e)=>{ if(e.target.id==='modal-backdrop'){ paymentModalOrderId=null; render(); } };
+  }
+
+  if(currentTab==='ventas'){
+    const exportBtn = document.getElementById('export-csv');
+    if(exportBtn) exportBtn.onclick = exportCsv;
+  }
+
+  if(currentTab==='catalogo'){
+    document.querySelectorAll('[data-cat-idx]').forEach(el=>{
+      el.oninput = ()=>{
+        const idx = +el.dataset.catIdx;
+        const field = el.dataset.catField;
+        state.products[idx][field] = field==='price' ? (parseInt(el.value)||0) : el.value;
+      };
+    });
+    document.querySelectorAll('[data-cat-remove]').forEach(el=>{
+      el.onclick = ()=>{ state.products.splice(+el.dataset.catRemove,1); render(); };
+    });
+    const addP = document.getElementById('add-product');
+    if(addP) addP.onclick = ()=>{
+      state.products.push({id:uid('p'), brand:'', name:'', price:0});
+      render();
+    };
+    const saveBtn = document.getElementById('save-catalog');
+    if(saveBtn) saveBtn.onclick = async ()=>{
+      await saveProducts();
+      showToast('Catálogo guardado ✅');
+    };
+  }
+}
+
+async function handleSubmitOrder(){
+  if(!orderForm.clientName.trim()){ showToast('Falta el nombre del cliente'); return; }
+  if(!orderForm.phone.trim()){ showToast('Falta el teléfono'); return; }
+  if(!orderForm.address.trim()){ showToast('Falta la dirección'); return; }
+  const clientType = isNewClient() ? 'nuevo' : 'antiguo';
+
+  const order = {
+    id: uid('o'),
+    clientName: orderForm.clientName.trim(),
+    phone: orderForm.phone.trim(),
+    address: orderForm.address.trim(),
+    horario: orderForm.horario.trim(),
+    items: orderForm.items.filter(it=>it.productId),
+    clientType,
+    status: 'pending',
+    createdAt: Date.now(),
+    deliveredAt: null,
+    paymentMethod: null
+  };
+  state.orders.push(order);
+  try{ await addOrderRemote(order); }catch(e){ /* toast ya mostrado */ }
+
+  if(!findClientByPhone(order.phone)){
+    const newClient = {name:order.clientName, phone:order.phone, address:order.address};
+    state.clients.push(newClient);
+    await addClientRemote(newClient);
+  }
+
+  resetOrderForm();
+  currentTab = 'ruta';
+  render();
+  showToast('Pedido agregado a la ruta 🚚');
+}
+
+async function confirmDelivery(method){
+  const o = state.orders.find(x=>x.id===paymentModalOrderId);
+  if(o){
+    o.status = 'delivered';
+    o.paymentMethod = method;
+    o.deliveredAt = Date.now();
+    try{ await updateOrderRemote(o.id, {status:'delivered', paymentMethod:method, deliveredAt:o.deliveredAt}); }catch(e){ /* toast ya mostrado */ }
+  }
+  paymentModalOrderId = null;
+  render();
+  showToast('Pedido marcado como entregado ✅');
+}
+
+function exportCsv(){
+  const delivered = state.orders.filter(o=>o.status==='delivered').sort((a,b)=>a.deliveredAt-b.deliveredAt);
+  const payLabel = {efectivo:'Efectivo',tarjeta:'Tarjeta',transferencia:'Transferencia',credito:'Crédito',pendiente:'Pendiente'};
+  const rows = [['Fecha','Hora','Cliente','Telefono','Direccion','Productos','Total','MedioPago','TipoCliente','Horario']];
+  delivered.forEach(o=>{
+    const d = new Date(o.deliveredAt);
+    const items = o.items.map(it=>{
+      const p = state.products.find(pp=>pp.id===it.productId);
+      return `${it.qty}x ${p?p.name:'-'}`;
+    }).join(' | ');
+    rows.push([
+      d.toLocaleDateString('es-CL'),
+      d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}),
+      o.clientName, o.phone, o.address, items,
+      orderItemsTotal(o.items), payLabel[o.paymentMethod]||o.paymentMethod,
+      o.clientType, o.horario||''
+    ]);
+  });
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `tiktok_pedidos_ventas_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+loadState();
+</script>
+</body>
+</html>
