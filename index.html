@@ -432,9 +432,8 @@ let orderForm = null; // draft order
 let paymentModalOrderId = null;
 let toastMsg = null;
 let toastTimer = null;
-// Se completa automáticamente al desplegar (ver Code.gs / INSTRUCCIONES.md).
-// Si queda vacío, la app pedirá la URL una vez por dispositivo.
-const DEFAULT_API_URL = '';
+// URL del backend en Apps Script (hoja "TikTok Pedidos DB", proyecto "TikTok Pedidos API").
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyl1MaJsk0sXY34MGBd8kjKR4rbhyMOQkXJaJxFusghgzvZ2qp7slvUmGv8NtB9-hf6TQ/exec';
 let apiUrl = localStorage.getItem('tiktok_pedidos_api_url') || DEFAULT_API_URL;
 let apiError = false;
 
